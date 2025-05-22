@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý sản phẩm</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+  <div class="sidebar-header">Quản lý bán hàng</div>
+  <nav>
+    <a href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="payment.html"><i class="bi bi-credit-card"></i> Thanh toán</a>
+    <div class="dropdown">
+      <button class="dropbtn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-bar-chart"></i> Thống kê
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="statistics-product.html">Thống kê sản phẩm</a></li>
+        <li><a class="dropdown-item" href="statistics-revenue.html">Thống kê doanh thu</a></li>
+      </ul>
+    </div>
+    <a href="products.html" class="active"><i class="bi bi-box-seam me-2"></i>Sản phẩm</a>
+    <a href="customers.html"><i class="bi bi-people me-2"></i>Khách hàng</a>
+    <a href="employees.html"><i class="bi bi-person-badge me-2"></i>Nhân viên</a>
+  </nav>
+</aside>
+
+
+  <main class="content">
+    <h2 class="mb-4">Quản lý sản phẩm</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddForm()">
+        <i class="bi bi-plus-circle"></i> Thêm sản phẩm
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle text-center" id="productsTable">
+        <thead class="table-dark">
+          <tr>
+            <th>Mã SP</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá (VNĐ)</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dữ liệu sản phẩm sẽ được render ở đây -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Form -->
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form class="modal-content" id="productForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="formTitle">Thêm sản phẩm</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="productCode" class="form-label">Mã sản phẩm</label>
+            <input type="text" id="productCode" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="productName" class="form-label">Tên sản phẩm</label>
+            <input type="text" id="productName" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="productPrice" class="form-label">Giá</label>
+            <input type="number" id="productPrice" class="form-control" required min="0" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let products = [
+      { code: 'SP001', name: 'Áo sơ mi', price: 250000 },
+      { code: 'SP002', name: 'Quần jean', price: 400000 },
+    ];
+
+    let editingIndex = -1;
+
+    const tbody = document.querySelector('#productsTable tbody');
+    const form = document.getElementById('productForm');
+    const formTitle = document.getElementById('formTitle');
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+
+    const codeInput = document.getElementById('productCode');
+    const nameInput = document.getElementById('productName');
+    const priceInput = document.getElementById('productPrice');
+
+    function renderProducts() {
+      tbody.innerHTML = '';
+      products.forEach((p, i) => {
+        const row = `
+          <tr>
+            <td>${p.code}</td>
+            <td>${p.name}</td>
+            <td>${p.price.toLocaleString('vi-VN')}</td>
+            <td class="text-center text-nowrap">
+  <div class="d-inline-flex gap-1">
+    <button class="btn btn-sm btn-warning" onclick="editProduct(${i})">
+      <i class="bi bi-pencil"></i>
+    </button>
+    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${i})">
+      <i class="bi bi-trash"></i>
+    </button>
+  </div>
+</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    function openAddForm() {
+      editingIndex = -1;
+      formTitle.textContent = 'Thêm sản phẩm';
+      form.reset();
+      codeInput.disabled = false;
+      modal.show();
+    }
+
+    function editProduct(index) {
+      editingIndex = index;
+      const p = products[index];
+      formTitle.textContent = 'Chỉnh sửa sản phẩm';
+      codeInput.value = p.code;
+      nameInput.value = p.name;
+      priceInput.value = p.price;
+      codeInput.disabled = true;
+      modal.show();
+    }
+
+    function deleteProduct(index) {
+      if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        products.splice(index, 1);
+        renderProducts();
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const code = codeInput.value.trim();
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+
+      if (!code || !name || price < 0) {
+        alert('Vui lòng nhập đúng thông tin!');
+        return;
+      }
+
+      if (editingIndex === -1) {
+        if (products.some(p => p.code === code)) {
+          alert('Mã sản phẩm đã tồn tại!');
+          return;
+        }
+        products.push({ code, name, price });
+      } else {
+        products[editingIndex].name = name;
+        products[editingIndex].price = price;
+      }
+
+      modal.hide();
+      renderProducts();
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>

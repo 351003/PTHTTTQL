@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thống kê sản phẩm</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body>
+  <aside class="sidebar">
+  <div class="sidebar-header">Quản lý bán hàng</div>
+  <nav>
+    <a href="dashboard.html" ><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="payment.html"><i class="bi bi-credit-card"></i> Thanh toán</a>
+    <div class="dropdown">
+      <button class="dropbtn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-bar-chart"></i> Thống kê
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="statistics-product.html" class="active">Thống kê sản phẩm</a></li>
+        <li><a class="dropdown-item" href="statistics-revenue.html">Thống kê doanh thu</a></li>
+      </ul>
+    </div>
+    <a href="products.html"><i class="bi bi-box-seam me-2"></i>Sản phẩm</a>
+    <a href="customers.html"><i class="bi bi-people me-2"></i>Khách hàng</a>
+    <a href="employees.html"><i class="bi bi-person-badge me-2"></i>Nhân viên</a>
+  </nav>
+</aside>
+
+
+
+  <main class="content">
+    <h1>Thống kê sản phẩm</h1>
+
+    <form id="filterForm">
+      <label for="startDate">Ngày bắt đầu:</label>
+      <input type="date" id="startDate" name="startDate" required />
+      
+      <label for="endDate">Ngày kết thúc:</label>
+      <input type="date" id="endDate" name="endDate" required />
+      
+      <button type="submit" class="btn-primary">Lọc</button>
+    </form>
+
+    <table class="table table-hover table-bordered align-middle">
+      <thead>
+        <tr>
+          <th>Mã sản phẩm</th>
+          <th>Tên sản phẩm</th>
+          <th>Số lượng bán</th>
+          <th>Ngày bán</th>
+        </tr>
+      </thead>
+      <tbody id="productStatsBody">
+        <!-- Dữ liệu sẽ được load ở đây -->
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Bootstrap icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const sampleData = [
+      { code: 'SP001', name: 'Sản phẩm A', quantity: 10, date: '2025-05-20' },
+      { code: 'SP002', name: 'Sản phẩm B', quantity: 5, date: '2025-05-21' },
+      { code: 'SP001', name: 'Sản phẩm A', quantity: 8, date: '2025-05-22' },
+      { code: 'SP003', name: 'Sản phẩm C', quantity: 3, date: '2025-05-22' }
+    ];
+
+    const form = document.getElementById('filterForm');
+    const tbody = document.getElementById('productStatsBody');
+
+    function renderTable(data) {
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center fst-italic text-muted">Không có dữ liệu</td></tr>';
+        return;
+      }
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>${item.date}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const start = form.startDate.value;
+      const end = form.endDate.value;
+      if (start > end) {
+        alert('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc');
+        return;
+      }
+      const filtered = sampleData.filter(item => item.date >= start && item.date <= end);
+      renderTable(filtered);
+    });
+
+    // Load dữ liệu mặc định (toàn bộ)
+    renderTable(sampleData);
+  </script>
+</body>
+</html>

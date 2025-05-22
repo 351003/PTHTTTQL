@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý nhân viên</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css">
+  
+
+  
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">Quản lý bán hàng</div>
+    <nav>
+      <a href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="payment.html"><i class="bi bi-credit-card"></i> Thanh toán</a>
+      <div class="dropdown">
+        <button class="dropbtn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-bar-chart"></i> Thống kê
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="statistics-product.html">Thống kê sản phẩm</a></li>
+          <li><a class="dropdown-item" href="statistics-revenue.html">Thống kê doanh thu</a></li>
+        </ul>
+      </div>
+      <a href="products.html"><i class="bi bi-box-seam me-2"></i> Sản phẩm</a>
+      <a href="customers.html"><i class="bi bi-people me-2"></i> Khách hàng</a>
+      <a href="employees.html" class="active"><i class="bi bi-person-badge me-2"></i> Nhân viên</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h2 class="mb-4">Quản lý nhân viên</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+      <!-- ĐÃ SỬA: Loại bỏ data-bs-toggle/data-bs-target -->
+      <button class="btn btn-success" onclick="openAddForm()">
+        <i class="bi bi-plus-circle"></i> Thêm nhân viên
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle text-center" id="employeesTable">
+        <thead class="table-dark">
+          <tr>
+            <th>Mã NV</th>
+            <th>Tên nhân viên</th>
+            <th>Chức vụ</th>
+            <th>Số điện thoại</th>
+            <th>Ngày sinh</th>
+            <th>Địa chỉ</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dữ liệu nhân viên sẽ được render ở đây -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Form -->
+  <div class="modal fade" id="employeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="employeeForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="formTitle">Thêm nhân viên</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="employeeCode" class="form-label">Mã nhân viên</label>
+            <input type="text" id="employeeCode" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="employeeName" class="form-label">Tên nhân viên</label>
+            <input type="text" id="employeeName" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="employeePosition" class="form-label">Chức vụ</label>
+            <input type="text" id="employeePosition" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="employeePhone" class="form-label">Số điện thoại</label>
+            <input type="email" id="employeePhone" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="employeeDate" class="form-label">Ngày sinh</label>
+            <input type="text" id="employeeDate" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="employeeAddress" class="form-label">Địa chỉ</label>
+            <input type="text" id="employeeAddress" class="form-control" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let employees = [
+      { code: 'NV001', name: 'Lê Văn C', position: 'Quản lý', phone: '0873897771',date:'04/12/2000', address: 'HN' },
+      { code: 'NV002', name: 'Phạm Thị D', position: 'Nhân viên bán hàng', phone: '0873897771', date:'04/12/2000',address: 'HN' },
+    ];
+
+    let editingIndex = -1;
+
+    const tbody = document.querySelector('#employeesTable tbody');
+    const form = document.getElementById('employeeForm');
+    const formTitle = document.getElementById('formTitle');
+    const modalInstance = new bootstrap.Modal(document.getElementById('employeeModal'));
+
+    const codeInput = document.getElementById('employeeCode');
+    const nameInput = document.getElementById('employeeName');
+    const positionInput = document.getElementById('employeePosition');
+    const phoneInput = document.getElementById('employeePhone');
+    const datedateInput = document.getElementById('employeeDate');
+    const addressInput = document.getElementById('employeeAddress');
+
+    function renderEmployees() {
+      tbody.innerHTML = '';
+      employees.forEach((e, i) => {
+        const row = `
+          <tr>
+            <td>${e.code}</td>
+            <td>${e.name}</td>
+            <td>${e.position}</td>
+            <td>${e.phone}</td>
+            <td>${e.date}</td>
+            <td>${e.address}</td>
+            <td class="text-center text-nowrap">
+  <div class="d-inline-flex gap-1">
+    <button class="btn btn-sm btn-warning" onclick="editEmployee(${i})">
+      <i class="bi bi-pencil"></i>
+    </button>
+    <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${i})">
+      <i class="bi bi-trash"></i>
+    </button>
+  </div>
+</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    function openAddForm() {
+      editingIndex = -1;
+      formTitle.textContent = 'Thêm nhân viên';
+      form.reset();
+      codeInput.disabled = false;
+      modalInstance.show(); // Gọi modal từ JS
+    }
+
+    function editEmployee(index) {
+      editingIndex = index;
+      const e = employees[index];
+      formTitle.textContent = 'Chỉnh sửa nhân viên';
+      codeInput.value = e.code;
+      nameInput.value = e.name;
+      positionInput.value = e.position;
+      phoneInput.value = e.phone;
+      dateInput.value = e.date;
+      addressInput.value = e.address;
+      codeInput.disabled = true;
+      modalInstance.show();
+    }
+
+    function deleteEmployee(index) {
+      if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+        employees.splice(index, 1);
+        renderEmployees();
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const code = codeInput.value.trim();
+      const name = nameInput.value.trim();
+      const position = positionInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const date = dateInput.value.trim();
+      const address = addressInput.value.trim();
+
+      if (!code || !name || !position || !phone || !date || !address ) {
+        alert('Vui lòng nhập đầy đủ thông tin!');
+        return;
+      }
+
+      if (editingIndex === -1) {
+        if (employees.some(emp => emp.code === code)) {
+          alert('Mã nhân viên đã tồn tại!');
+          return;
+        }
+        employees.push({ code, name, position, phone, date, address });
+      } else {
+        employees[editingIndex].name = name;
+        employees[editingIndex].position = position;
+        employees[editingIndex].phone = phone;
+        employees[editingIndex].date = date;
+        employees[editingIndex].address  = address;
+      }
+
+      modalInstance.hide();
+      renderEmployees();
+    });
+
+    renderEmployees();
+  </script>
+</body>
+</html>
