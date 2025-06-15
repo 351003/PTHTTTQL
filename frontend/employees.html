@@ -61,7 +61,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <div class="flex-grow-1">
-    <input type="text" id="searchInput" class="form-control" placeholder="Tìm nhân viên..." oninput="searchByCode()" />
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm nhân viên..." oninput="searchEmployees()" />
   </div>
 
   <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#employeeModal" onclick="openAddForm()">
@@ -76,6 +76,7 @@
             <th>Mã NV</th>
             <th>Tên nhân viên</th>
             <th>Chức vụ</th>
+            <th>Lương</th>
             <th>Số điện thoại</th>
             <th>Ngày sinh</th>
             <th>Địa chỉ</th>
@@ -112,6 +113,10 @@
             <input type="text" id="employeePosition" class="form-control" required />
           </div>
           <div class="mb-3">
+            <label for="employeeemployeeSalary" class="form-label">Lương</label>
+            <input type="number" id="employeeSalary" class="form-control" required min="0" />
+          </div>
+          <div class="mb-3">
             <label for="employeePhone" class="form-label">Số điện thoại</label>
             <input type="email" id="employeePhone" class="form-control" required />
           </div>
@@ -137,12 +142,12 @@
 
   <script>
     let employees = [
-      { code: 'NV001', name: 'Lê Văn C', position: 'Quản lý', phone: '0873897771',date:'04/12/2000', address: 'HN' },
-      { code: 'NV002', name: 'Phạm Thị D', position: 'Nhân viên bán hàng', phone: '0873897771', date:'04/12/2000',address: 'HN' },
-      { code: 'NV003', name: 'Nguyễn Văn A', position: 'Nhân viên kho', phone: '0912345678', date: '15/08/1999', address: 'Hà Nội' },
-      { code: 'NV004', name: 'Trần Thị Bích', position: 'Kế toán', phone: '0908765432', date: '22/11/1997', address: 'Hải Phòng' },
-      { code: 'NV005', name: 'Đỗ Mạnh Hùng', position: 'Nhân viên kỹ thuật', phone: '0987654321', date: '09/06/1995', address: 'TP HCM' },
-      { code: 'NV006', name: 'Hoàng Minh Tú', position: 'Bảo vệ', phone: '0855566778', date: '30/03/1988', address: 'Nghệ An' },
+      { code: 'NV001', name: 'Lê Văn C', position: 'Quản lý', salary: 15000000, phone: '0873897771', date: '04/12/2000', address: 'HN' },
+      { code: 'NV002', name: 'Phạm Thị D', position: 'Nhân viên bán hàng', salary: 9000000, phone: '0873897771', date: '04/12/2000', address: 'HN' },
+      { code: 'NV003', name: 'Nguyễn Văn A', position: 'Nhân viên kho', salary: 8500000, phone: '0912345678', date: '15/08/1999', address: 'Hà Nội' },
+      { code: 'NV004', name: 'Trần Thị Bích', position: 'Kế toán', salary: 10000000, phone: '0908765432', date: '22/11/1997', address: 'Hải Phòng' },
+      { code: 'NV005', name: 'Đỗ Mạnh Hùng', position: 'Nhân viên kỹ thuật', salary: 9500000, phone: '0987654321', date: '09/06/1995', address: 'TP HCM' },
+      { code: 'NV006', name: 'Hoàng Minh Tú', position: 'Bảo vệ', salary: 7000000, phone: '0855566778', date: '30/03/1988', address: 'Nghệ An' }
     ];
 
     
@@ -155,6 +160,7 @@
     const codeInput = document.getElementById('employeeCode');
     const nameInput = document.getElementById('employeeName');
     const positionInput = document.getElementById('employeePosition');
+    const salaryInput = document.getElementById('employeeSalary');
     const phoneInput = document.getElementById('employeePhone');
     const dateInput = document.getElementById('employeeDate');
     const addressInput = document.getElementById('employeeAddress');
@@ -198,6 +204,7 @@
             <td>${e.code}</td>
             <td>${e.name}</td>
             <td>${e.position}</td>
+            <td>${e.salary.toLocaleString('vi-VN')} đ</td>
             <td>${e.phone}</td>
             <td>${e.date}</td>
             <td>${e.address}</td>
@@ -221,15 +228,21 @@
     currentPage = page;
     const keyword = searchInput.value.trim().toLowerCase();
     const filtered = keyword
-      ? employees.filter(p => p.code.toLowerCase().includes(keyword))
+      ? employees.filter(p => 
+        p.code.toLowerCase().includes(keyword) ||
+        p.name.toLowerCase().includes(keyword) ||
+        p.phone.includes(keyword))
       : employees;
     renderEmployees(filtered);
   }
 
-  function searchByCode() {
+  function searchEmployees() {
     currentPage = 1;
     const keyword = searchInput.value.trim().toLowerCase();
-    const filteredEmployees = employees.filter(p => p.code.toLowerCase().includes(keyword));
+    const filteredEmployees = employees.filter(p => 
+      p.code.toLowerCase().includes(keyword) ||
+      p.name.toLowerCase().includes(keyword) ||
+      p.phone.includes(keyword));
     
     renderEmployees(filteredEmployees);
   }
