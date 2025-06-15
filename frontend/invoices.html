@@ -59,7 +59,7 @@
     <!-- <h2 class="mb-4">Quản lý hóa đơn</h2> -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <div class="flex-grow-1">
-    <input type="text" id="searchInput" class="form-control" placeholder="Tìm hóa đơn..." oninput="searchByCode()" />
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm hóa đơn..." oninput="searchInvoices()" />
   </div>
 
   
@@ -247,7 +247,7 @@
       tbody.innerHTML = '';
       const search = searchBox.value.trim().toLowerCase();
       paginated.forEach((inv, index) => {
-        if (!inv.code.toLowerCase().includes(search)) return;
+        // if (!inv.code.toLowerCase().includes(search)) return;
         const row = `
           <tr>
             <td>${inv.code}</td>
@@ -274,10 +274,14 @@
     renderInvoices(filtered);
   }
 
-  function searchByCode() {
+  function searchInvoices() {
     currentPage = 1;
     const keyword = searchInput.value.trim().toLowerCase();
-    const filteredInvoices = invoices.filter(inv => inv.code.toLowerCase().includes(keyword));
+    const filteredInvoices = invoices.filter(inv => {
+      const matchCode = inv.code.toLowerCase().includes(keyword);
+      const matchDate = (inv.createdAt || '').includes(keyword);
+      return matchCode || matchDate;
+    });
     renderInvoices(filteredInvoices);
   }
     function editInvoice(index) {
