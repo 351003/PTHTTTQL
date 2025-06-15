@@ -13,7 +13,26 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+<!-- Navbar top -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end px-4" style="margin-left: 220px;">
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <a
+        class="nav-link dropdown-toggle d-flex align-items-center"
+        href="#"
+        id="userDropdown"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-person-circle fs-4 me-2"></i> <span id="username">Admin</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
   <aside class="sidebar">
     <div class="sidebar-header">Quản lý bán hàng</div>
     <nav>
@@ -31,17 +50,22 @@
       <a href="products.html"><i class="bi bi-box-seam me-2"></i> Sản phẩm</a>
       <a href="customers.html" class="active"><i class="bi bi-people me-2"></i> Khách hàng</a>
       <a href="employees.html"><i class="bi bi-person-badge me-2"></i> Nhân viên</a>
+      <a href="invoices.html"><i class="bi bi-receipt me-2"></i>Hóa đơn</a>
     </nav>
   </aside>
 
   <main class="content">
-    <h2 class="mb-4">Quản lý khách hàng</h2>
+    <!-- <h2 class="mb-4">Quản lý khách hàng</h2> -->
 
-    <div class="d-flex justify-content-between mb-3">
-      <button class="btn btn-success" onclick="openAddForm()">
-        <i class="bi bi-plus-circle"></i> Thêm khách hàng
-      </button>
-    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="flex-grow-1">
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm khách hàng " oninput="searchByCode()" />
+  </div>
+
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#customerModal" onclick="openAddForm()">
+    <i class="bi bi-plus-circle"></i> Thêm khách hàng
+  </button>
+</div>
 
     <div class="table-responsive">
       <table class="table table-hover align-middle text-center" id="customersTable">
@@ -49,6 +73,7 @@
           <tr>
             <th>Mã KH</th>
             <th>Tên khách hàng</th>
+            <th>Ngày sinh</th>
             <th>Email</th>
             <th>Số điện thoại</th>
             <th>Hành động</th>
@@ -59,6 +84,7 @@
         </tbody>
       </table>
     </div>
+    <div id="pagination"></div>
   </main>
 
   <!-- Modal Form -->
@@ -72,11 +98,15 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="customerCode" class="form-label">Mã khách hàng</label>
-            <input type="text" id="customerCode" class="form-control" required />
+            <input type="text" id="customerCode" class="form-control" required readonly/>
           </div>
           <div class="mb-3">
             <label for="customerName" class="form-label">Tên khách hàng</label>
             <input type="text" id="customerName" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="customerDate" class="form-label">Ngày sinh</label>
+            <input type="date" id="customerDate" class="form-control" required />
           </div>
           <div class="mb-3">
             <label for="customerEmail" class="form-label">Email</label>
@@ -100,11 +130,19 @@
 
   <script>
     let customers = [
-      { code: 'KH001', name: 'Nguyễn Văn A', email: 'a@gmail.com', phone: '0912345678' },
-      { code: 'KH002', name: 'Trần Thị B', email: 'b@gmail.com', phone: '0987654321' },
+      { code: 'KH001', name: 'Nguyễn Văn A',date:'12/10/2001', email: 'a@gmail.com', phone: '0912345678' },
+      { code: 'KH002', name: 'Trần Thị B', date:'18/09/2000',email: 'b@gmail.com', phone: '0987654321' },
+      { code: 'KH003', name: 'Lê Văn C', date: '01/01/1999', email: 'c@gmail.com', phone: '0911122334' },
+      { code: 'KH004', name: 'Phạm Thị D', date: '22/07/1998', email: 'd@gmail.com', phone: '0933445566' },
+      { code: 'KH005', name: 'Trịnh Văn E', date: '15/03/1997', email: 'e@gmail.com', phone: '0945566778' },
+      { code: 'KH006', name: 'Hoàng Thị F', date: '05/11/1996', email: 'f@gmail.com', phone: '0966677889' },
+      { code: 'KH007', name: 'Đào Văn G', date: '17/09/1995', email: 'g@gmail.com', phone: '0977788990' },
+      { code: 'KH008', name: 'Ngô Thị H', date: '28/02/1994', email: 'h@gmail.com', phone: '0988899001' },
+      { code: 'KH009', name: 'Đỗ Văn I', date: '10/08/1993', email: 'i@gmail.com', phone: '0910001112' },
+      { code: 'KH010', name: 'Bùi Thị K', date: '19/04/1992', email: 'k@gmail.com', phone: '0921112233' },
+      { code: 'KH011', name: 'Tạ Văn L', date: '09/12/1991', email: 'l@gmail.com', phone: '0932223344' },
     ];
 
-    let editingIndex = -1;
 
     const tbody = document.querySelector('#customersTable tbody');
     const form = document.getElementById('customerForm');
@@ -113,55 +151,125 @@
 
     const codeInput = document.getElementById('customerCode');
     const nameInput = document.getElementById('customerName');
+    const dateInput = document.getElementById('customerDate');
     const emailInput = document.getElementById('customerEmail');
     const phoneInput = document.getElementById('customerPhone');
 
-    function renderCustomers() {
-      tbody.innerHTML = '';
-      customers.forEach((c, i) => {
-        const row = `
-          <tr>
-            <td>${c.code}</td>
-            <td>${c.name}</td>
-            <td>${c.email}</td>
-            <td>${c.phone}</td>
-            <td class="text-center text-nowrap">
-  <div class="d-inline-flex gap-1">
-    <button class="btn btn-sm btn-warning" onclick="editCustomer(${i})">
-      <i class="bi bi-pencil"></i>
-    </button>
-    <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${i})">
-      <i class="bi bi-trash"></i>
-    </button>
-  </div>
-</td>
-          </tr>
-        `;
-        tbody.insertAdjacentHTML('beforeend', row);
-      });
+    let editingIndex = -1;
+  let currentPage = 1;
+  const pageSize = 5;
+
+  function paginate(array, pageSize, pageNumber) {
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+  }
+
+  function renderPagination(totalItems) {
+    const pageCount = Math.ceil(totalItems / pageSize);
+    let paginationHTML = `<nav><ul class="pagination justify-content-center mt-3">`;
+
+    for (let i = 1; i <= pageCount; i++) {
+      paginationHTML += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <button class="page-link" onclick="goToPage(${i})">${i}</button>
+        </li>`;
     }
+
+    paginationHTML += `</ul></nav>`;
+
+    const paginationContainer = document.getElementById('pagination');
+    if (!paginationContainer) {
+      const container = document.createElement('div');
+      container.id = 'pagination';
+      document.querySelector('.table-responsive').appendChild(container);
+    }
+    document.getElementById('pagination').innerHTML = paginationHTML;
+  }
+
+    function renderCustomers(customerList = customers) {
+      const paginated = paginate(customerList, pageSize, currentPage);
+  // const keyword = document.getElementById('searchInput').value.toLowerCase();
+  tbody.innerHTML = '';
+  // customers
+  //   .filter(c =>
+  //     c.code.toLowerCase().includes(keyword) ||
+  //     c.name.toLowerCase().includes(keyword) ||
+  //     c.email.toLowerCase().includes(keyword) ||
+  //     c.phone.includes(keyword) ||
+  //     c.date.includes(keyword)
+  //   )
+    paginated.forEach((c, i) => {
+      const row = `
+        <tr>
+          <td>${c.code}</td>
+          <td>${c.name}</td>
+          <td>${c.date}</td>
+          <td>${c.email}</td>
+          <td>${c.phone}</td>
+          <td class="text-center text-nowrap">
+            <div class="d-inline-flex gap-1">
+              <button class="btn btn-sm btn-warning" onclick="editCustomerByCode('${c.code}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCustomerByCode('${c.code}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML('beforeend', row);
+    });
+    renderPagination(customerList.length);
+}
+function goToPage(page) {
+    currentPage = page;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filtered = keyword
+      ? customers.filter(c => c.code.toLowerCase().includes(keyword))
+      : customers;
+    renderCustomers(filtered);
+  }
+
+  function searchByCode() {
+    currentPage = 1;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filteredCustomers = customers.filter(c => c.code.toLowerCase().includes(keyword));
+    renderCustomers(filteredCustomers);
+  }
 
     function openAddForm() {
       editingIndex = -1;
       formTitle.textContent = 'Thêm khách hàng';
       form.reset();
-      codeInput.disabled = false;
+      // codeInput.disabled = false;
+      // Sinh mã tự động
+      const maxCode = customers.reduce((max, c) => {
+        const num = parseInt(c.code.substring(2)); // lấy số sau KH
+        return num > max ? num : max;
+      }, 0);
+      const newCode = 'KH' + String(maxCode + 1).padStart(3, '0');
+      codeInput.value = newCode;
       modal.show();
     }
 
-    function editCustomer(index) {
+    function editCustomerByCode(code) {
+      // editingIndex = index;
+      // const c = customers[index];
+      const index = customers.findIndex(c => c.code === code);
+      if (index === -1) return;
       editingIndex = index;
       const c = customers[index];
       formTitle.textContent = 'Chỉnh sửa khách hàng';
       codeInput.value = c.code;
       nameInput.value = c.name;
+      dateInput.value = c.date;
       emailInput.value = c.email;
       phoneInput.value = c.phone;
       codeInput.disabled = true;
       modal.show();
     }
 
-    function deleteCustomer(index) {
+    function deleteCustomerByCode(code) {
       if (confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
         customers.splice(index, 1);
         renderCustomers();
@@ -172,10 +280,11 @@
       e.preventDefault();
       const code = codeInput.value.trim();
       const name = nameInput.value.trim();
+      const date = dateInput.value.trim();
       const email = emailInput.value.trim();
       const phone = phoneInput.value.trim();
 
-      if (!code || !name || !email || !phone) {
+      if (!code || !name || !date || !email || !phone) {
         alert('Vui lòng nhập đầy đủ thông tin!');
         return;
       }
@@ -185,9 +294,10 @@
           alert('Mã khách hàng đã tồn tại!');
           return;
         }
-        customers.push({ code, name, email, phone });
+        customers.push({ code, name,date, email, phone });
       } else {
         customers[editingIndex].name = name;
+        customers[editingIndex].date = date;
         customers[editingIndex].email = email;
         customers[editingIndex].phone = phone;
       }

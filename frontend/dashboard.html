@@ -11,9 +11,61 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  
+  <style>
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 220px;
+      right: 0;
+      height: 60px;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    .main-content {
+  margin-left: 220px; /* né sidebar */
+  margin-top: 60px;   /* né topbar */
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* tránh tràn trang */
+  background-color: #f8f9fa;
+}
+
+    .user-dropdown .dropdown-toggle::after {
+      display: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 220px;
+      background-color: #343a40;
+      color: #fff;
+      padding-top: 20px;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 10px 20px;
+      color: #ddd;
+      text-decoration: none;
+    }
+
+    .sidebar nav a.active,
+    .sidebar nav a:hover {
+      background-color: #495057;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
+  
   <aside class="sidebar">
     <div class="sidebar-header">Quản lý bán hàng</div>
     <nav>
@@ -31,11 +83,31 @@
       <a href="products.html"><i class="bi bi-box-seam me-2"></i> Sản phẩm</a>
       <a href="customers.html"><i class="bi bi-people me-2"></i> Khách hàng</a>
       <a href="employees.html"><i class="bi bi-person-badge me-2"></i> Nhân viên</a>
+      <a href="invoices.html"><i class="bi bi-receipt me-2"></i>Hóa đơn</a>
     </nav>
     </aside>
-
+    <!-- Navbar top -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end px-4" style="margin-left: 220px;">
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <a
+        class="nav-link dropdown-toggle d-flex align-items-center"
+        href="#"
+        id="userDropdown"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-person-circle fs-4 me-2"></i> <span id="username">Admin</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
   <main class="main-content" style="margin-left: 220px; padding: 20px;">
-    <h1 class="mb-4">Dashboard</h1>
+    <!-- <h1 class="mb-4">Dashboard</h1> -->
 
     <div class="grid">
       <div class="card text-center">
@@ -86,6 +158,13 @@
           }
         }
       }
+    });
+     // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      // Xoá token nếu có
+      localStorage.removeItem('token');
+      // Chuyển về trang đăng nhập
+      window.location.href = 'login.html';
     });
   </script>
 

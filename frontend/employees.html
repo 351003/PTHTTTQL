@@ -15,7 +15,26 @@
   
 </head>
 <body>
-
+<!-- Navbar top -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end px-4" style="margin-left: 220px;">
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <a
+        class="nav-link dropdown-toggle d-flex align-items-center"
+        href="#"
+        id="userDropdown"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-person-circle fs-4 me-2"></i> <span id="username">Admin</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
   <aside class="sidebar">
     <div class="sidebar-header">Quản lý bán hàng</div>
     <nav>
@@ -33,18 +52,22 @@
       <a href="products.html"><i class="bi bi-box-seam me-2"></i> Sản phẩm</a>
       <a href="customers.html"><i class="bi bi-people me-2"></i> Khách hàng</a>
       <a href="employees.html" class="active"><i class="bi bi-person-badge me-2"></i> Nhân viên</a>
+      <a href="invoices.html"><i class="bi bi-receipt me-2"></i>Hóa đơn</a>
     </nav>
   </aside>
 
   <main class="content">
-    <h2 class="mb-4">Quản lý nhân viên</h2>
+    <!-- <h2 class="mb-4">Quản lý nhân viên</h2> -->
 
-    <div class="d-flex justify-content-between mb-3">
-      <!-- ĐÃ SỬA: Loại bỏ data-bs-toggle/data-bs-target -->
-      <button class="btn btn-success" onclick="openAddForm()">
-        <i class="bi bi-plus-circle"></i> Thêm nhân viên
-      </button>
-    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="flex-grow-1">
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm nhân viên..." oninput="searchByCode()" />
+  </div>
+
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#employeeModal" onclick="openAddForm()">
+    <i class="bi bi-plus-circle"></i> Thêm nhân viên 
+  </button>
+</div>
 
     <div class="table-responsive">
       <table class="table table-hover align-middle text-center" id="employeesTable">
@@ -64,6 +87,7 @@
         </tbody>
       </table>
     </div>
+    <div id="pagination"></div>
   </main>
 
   <!-- Modal Form -->
@@ -77,7 +101,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="employeeCode" class="form-label">Mã nhân viên</label>
-            <input type="text" id="employeeCode" class="form-control" required />
+            <input type="text" id="employeeCode" class="form-control" required readonly/>
           </div>
           <div class="mb-3">
             <label for="employeeName" class="form-label">Tên nhân viên</label>
@@ -93,7 +117,7 @@
           </div>
           <div class="mb-3">
             <label for="employeeDate" class="form-label">Ngày sinh</label>
-            <input type="text" id="employeeDate" class="form-control" required />
+            <input type="date" id="employeeDate" class="form-control" required />
           </div>
           <div class="mb-3">
             <label for="employeeAddress" class="form-label">Địa chỉ</label>
@@ -115,9 +139,13 @@
     let employees = [
       { code: 'NV001', name: 'Lê Văn C', position: 'Quản lý', phone: '0873897771',date:'04/12/2000', address: 'HN' },
       { code: 'NV002', name: 'Phạm Thị D', position: 'Nhân viên bán hàng', phone: '0873897771', date:'04/12/2000',address: 'HN' },
+      { code: 'NV003', name: 'Nguyễn Văn A', position: 'Nhân viên kho', phone: '0912345678', date: '15/08/1999', address: 'Hà Nội' },
+      { code: 'NV004', name: 'Trần Thị Bích', position: 'Kế toán', phone: '0908765432', date: '22/11/1997', address: 'Hải Phòng' },
+      { code: 'NV005', name: 'Đỗ Mạnh Hùng', position: 'Nhân viên kỹ thuật', phone: '0987654321', date: '09/06/1995', address: 'TP HCM' },
+      { code: 'NV006', name: 'Hoàng Minh Tú', position: 'Bảo vệ', phone: '0855566778', date: '30/03/1988', address: 'Nghệ An' },
     ];
 
-    let editingIndex = -1;
+    
 
     const tbody = document.querySelector('#employeesTable tbody');
     const form = document.getElementById('employeeForm');
@@ -128,12 +156,43 @@
     const nameInput = document.getElementById('employeeName');
     const positionInput = document.getElementById('employeePosition');
     const phoneInput = document.getElementById('employeePhone');
-    const datedateInput = document.getElementById('employeeDate');
+    const dateInput = document.getElementById('employeeDate');
     const addressInput = document.getElementById('employeeAddress');
 
-    function renderEmployees() {
+    let editingIndex = -1;
+  let currentPage = 1;
+  const pageSize = 5;
+
+  function paginate(array, pageSize, pageNumber) {
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+  }
+
+  function renderPagination(totalItems) {
+    const pageCount = Math.ceil(totalItems / pageSize);
+    let paginationHTML = `<nav><ul class="pagination justify-content-center mt-3">`;
+
+    for (let i = 1; i <= pageCount; i++) {
+      paginationHTML += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <button class="page-link" onclick="goToPage(${i})">${i}</button>
+        </li>`;
+    }
+
+    paginationHTML += `</ul></nav>`;
+
+    const paginationContainer = document.getElementById('pagination');
+    if (!paginationContainer) {
+      const container = document.createElement('div');
+      container.id = 'pagination';
+      document.querySelector('.table-responsive').appendChild(container);
+    }
+    document.getElementById('pagination').innerHTML = paginationHTML;
+  }
+
+    function renderEmployees(employeeList = employees) {
+      const paginated = paginate(employeeList, pageSize, currentPage);
       tbody.innerHTML = '';
-      employees.forEach((e, i) => {
+      paginated.forEach((e, i) => {
         const row = `
           <tr>
             <td>${e.code}</td>
@@ -156,13 +215,36 @@
         `;
         tbody.insertAdjacentHTML('beforeend', row);
       });
+      renderPagination(employeeList.length);
     }
+    function goToPage(page) {
+    currentPage = page;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filtered = keyword
+      ? employees.filter(p => p.code.toLowerCase().includes(keyword))
+      : employees;
+    renderEmployees(filtered);
+  }
 
+  function searchByCode() {
+    currentPage = 1;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filteredEmployees = employees.filter(p => p.code.toLowerCase().includes(keyword));
+    
+    renderEmployees(filteredEmployees);
+  }
     function openAddForm() {
       editingIndex = -1;
       formTitle.textContent = 'Thêm nhân viên';
       form.reset();
-      codeInput.disabled = false;
+      // codeInput.disabled = false;
+      // Sinh mã tự động
+      const maxCode = employees.reduce((max, e) => {
+        const num = parseInt(e.code.substring(2)); // lấy số sau NV
+        return num > max ? num : max;
+      }, 0);
+      const newCode = 'NV' + String(maxCode + 1).padStart(3, '0');
+      codeInput.value = newCode;
       modalInstance.show(); // Gọi modal từ JS
     }
 

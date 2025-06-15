@@ -5,15 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quản lý sản phẩm</title>
 
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+<!-- style.css (nếu có) -->
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+<!-- Navbar top -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end px-4" style="margin-left: 220px;">
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <a
+        class="nav-link dropdown-toggle d-flex align-items-center"
+        href="#"
+        id="userDropdown"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-person-circle fs-4 me-2"></i> <span id="username">Admin</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
   <aside class="sidebar">
   <div class="sidebar-header">Quản lý bán hàng</div>
   <nav>
@@ -31,26 +50,32 @@
     <a href="products.html" class="active"><i class="bi bi-box-seam me-2"></i>Sản phẩm</a>
     <a href="customers.html"><i class="bi bi-people me-2"></i>Khách hàng</a>
     <a href="employees.html"><i class="bi bi-person-badge me-2"></i>Nhân viên</a>
+    <a href="invoices.html"><i class="bi bi-receipt me-2"></i>Hóa đơn</a>
   </nav>
 </aside>
 
 
   <main class="content">
-    <h2 class="mb-4">Quản lý sản phẩm</h2>
+    <!-- <h2 class="mb-4">Quản lý sản phẩm</h2> -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="flex-grow-1">
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm sản phẩm theo mã..." oninput="searchByCode()" />
+  </div>
 
-    <div class="d-flex justify-content-between mb-3">
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddForm()">
-        <i class="bi bi-plus-circle"></i> Thêm sản phẩm
-      </button>
-    </div>
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddForm()">
+    <i class="bi bi-plus-circle"></i> Thêm sản phẩm
+  </button>
+</div>
 
     <div class="table-responsive">
+      
       <table class="table table-hover align-middle text-center" id="productsTable">
         <thead class="table-dark">
           <tr>
             <th>Mã SP</th>
             <th>Tên sản phẩm</th>
-            <th>Giá (VNĐ)</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
             <th>Hành động</th>
           </tr>
         </thead>
@@ -59,6 +84,7 @@
         </tbody>
       </table>
     </div>
+    <div id="pagination"></div>
   </main>
 
   <!-- Modal Form -->
@@ -72,7 +98,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="productCode" class="form-label">Mã sản phẩm</label>
-            <input type="text" id="productCode" class="form-control" required />
+            <input type="text" id="productCode" class="form-control" required readonly  />
           </div>
           <div class="mb-3">
             <label for="productName" class="form-label">Tên sản phẩm</label>
@@ -81,6 +107,10 @@
           <div class="mb-3">
             <label for="productPrice" class="form-label">Giá</label>
             <input type="number" id="productPrice" class="form-control" required min="0" />
+          </div>
+          <div class="mb-3">
+            <label for="productQuantity" class="form-label">Số lượng</label>
+            <input type="number" id="productQuantity" class="form-control" required min="0" />
           </div>
         </div>
         <div class="modal-footer">
@@ -95,99 +125,171 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    let products = [
-      { code: 'SP001', name: 'Áo sơ mi', price: 250000 },
-      { code: 'SP002', name: 'Quần jean', price: 400000 },
-    ];
+  let products = [
+    { code: 'SP001', name: 'Áo sơ mi', price: 250000, quantity: 10 },
+  { code: 'SP002', name: 'Quần jean', price: 400000, quantity: 8 },
+  { code: 'SP003', name: 'Áo thun', price: 200000, quantity: 15 },
+  { code: 'SP004', name: 'Quần kaki', price: 350000, quantity: 12 },
+  { code: 'SP005', name: 'Giày thể thao', price: 500000, quantity: 7 },
+  { code: 'SP006', name: 'Túi xách', price: 450000, quantity: 6 },
+  { code: 'SP007', name: 'Mũ lưỡi trai', price: 150000, quantity: 20 },
+  { code: 'SP008', name: 'Áo hoodie', price: 600000, quantity: 5 },
+  { code: 'SP009', name: 'Váy dài', price: 300000, quantity: 9 },
+  { code: 'SP010', name: 'Đồng hồ', price: 1200000, quantity: 4 },
+  { code: 'SP011', name: 'Đồng hồ', price: 1200000, quantity: 6 }
+  ];
 
-    let editingIndex = -1;
+  const tbody = document.querySelector('#productsTable tbody');
+  const form = document.getElementById('productForm');
+  const formTitle = document.getElementById('formTitle');
+  const modal = new bootstrap.Modal(document.getElementById('productModal'));
 
-    const tbody = document.querySelector('#productsTable tbody');
-    const form = document.getElementById('productForm');
-    const formTitle = document.getElementById('formTitle');
-    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+  const codeInput = document.getElementById('productCode');
+  const nameInput = document.getElementById('productName');
+  const priceInput = document.getElementById('productPrice');
+  const quantityInput = document.getElementById('productQuantity');
+  const searchInput = document.getElementById('searchInput');
 
-    const codeInput = document.getElementById('productCode');
-    const nameInput = document.getElementById('productName');
-    const priceInput = document.getElementById('productPrice');
+  let editingIndex = -1;
+  let currentPage = 1;
+  const pageSize = 5;
 
-    function renderProducts() {
-      tbody.innerHTML = '';
-      products.forEach((p, i) => {
-        const row = `
-          <tr>
-            <td>${p.code}</td>
-            <td>${p.name}</td>
-            <td>${p.price.toLocaleString('vi-VN')}</td>
-            <td class="text-center text-nowrap">
-  <div class="d-inline-flex gap-1">
-    <button class="btn btn-sm btn-warning" onclick="editProduct(${i})">
-      <i class="bi bi-pencil"></i>
-    </button>
-    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${i})">
-      <i class="bi bi-trash"></i>
-    </button>
-  </div>
-</td>
-          </tr>
-        `;
-        tbody.insertAdjacentHTML('beforeend', row);
-      });
+  function paginate(array, pageSize, pageNumber) {
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+  }
+
+  function renderPagination(totalItems) {
+    const pageCount = Math.ceil(totalItems / pageSize);
+    let paginationHTML = `<nav><ul class="pagination justify-content-center mt-3">`;
+
+    for (let i = 1; i <= pageCount; i++) {
+      paginationHTML += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <button class="page-link" onclick="goToPage(${i})">${i}</button>
+        </li>`;
     }
 
-    function openAddForm() {
-      editingIndex = -1;
-      formTitle.textContent = 'Thêm sản phẩm';
-      form.reset();
-      codeInput.disabled = false;
-      modal.show();
-    }
+    paginationHTML += `</ul></nav>`;
 
-    function editProduct(index) {
-      editingIndex = index;
-      const p = products[index];
-      formTitle.textContent = 'Chỉnh sửa sản phẩm';
-      codeInput.value = p.code;
-      nameInput.value = p.name;
-      priceInput.value = p.price;
-      codeInput.disabled = true;
-      modal.show();
+    const paginationContainer = document.getElementById('pagination');
+    if (!paginationContainer) {
+      const container = document.createElement('div');
+      container.id = 'pagination';
+      document.querySelector('.table-responsive').appendChild(container);
     }
+    document.getElementById('pagination').innerHTML = paginationHTML;
+  }
 
-    function deleteProduct(index) {
-      if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+  function renderProducts(productList = products) {
+    const paginated = paginate(productList, pageSize, currentPage);
+    tbody.innerHTML = '';
+    paginated.forEach((p, i) => {
+      const row = `
+        <tr>
+          <td>${p.code}</td>
+          <td>${p.name}</td>
+          <td>${p.price.toLocaleString('vi-VN')}</td>
+          <td>${p.quantity}</td>
+          <td class="text-center text-nowrap">
+            <div class="d-inline-flex gap-1">
+              <button class="btn btn-sm btn-warning" onclick="editProductByCode('${p.code}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteProductByCode('${p.code}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      tbody.insertAdjacentHTML('beforeend', row);
+    });
+    renderPagination(productList.length);
+  }
+
+  function goToPage(page) {
+    currentPage = page;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filtered = keyword
+      ? products.filter(p => p.code.toLowerCase().includes(keyword))
+      : products;
+    renderProducts(filtered);
+  }
+
+  function searchByCode() {
+    currentPage = 1;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const filteredProducts = products.filter(p => p.code.toLowerCase().includes(keyword));
+    renderProducts(filteredProducts);
+  }
+
+  function openAddForm() {
+    editingIndex = -1;
+    formTitle.textContent = 'Thêm sản phẩm';
+    form.reset();
+    // codeInput.disabled = false;
+    // Sinh mã tự động
+      const maxCode = products.reduce((max, p) => {
+        const num = parseInt(p.code.substring(2)); // lấy số sau SP
+        return num > max ? num : max;
+      }, 0);
+      const newCode = 'SP' + String(maxCode + 1).padStart(3, '0');
+      codeInput.value = newCode;
+    modal.show();
+  }
+
+  function editProductByCode(code) {
+    const index = products.findIndex(p => p.code === code);
+    if (index === -1) return;
+    editingIndex = index;
+    const p = products[index];
+    formTitle.textContent = 'Chỉnh sửa sản phẩm';
+    codeInput.value = p.code;
+    nameInput.value = p.name;
+    priceInput.value = p.price;
+    quantityInput.value = p.quantity;
+    codeInput.disabled = true;
+    modal.show();
+  }
+
+  function deleteProductByCode(code) {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+      const index = products.findIndex(p => p.code === code);
+      if (index !== -1) {
         products.splice(index, 1);
         renderProducts();
       }
     }
+  }
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const code = codeInput.value.trim();
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const code = codeInput.value.trim();
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    const quantity = parseInt(quantityInput.value);
+    if (!code || !name || price < 0 || quantity < 0) {
+      alert('Vui lòng nhập đúng thông tin!');
+      return;
+    }
 
-      if (!code || !name || price < 0) {
-        alert('Vui lòng nhập đúng thông tin!');
+    if (editingIndex === -1) {
+      if (products.some(p => p.code === code)) {
+        alert('Mã sản phẩm đã tồn tại!');
         return;
       }
+      products.push({ code, name, price, quantity });
+    } else {
+      products[editingIndex].name = name;
+      products[editingIndex].price = price;
+      products[editingIndex].quantity = quantity;
+    }
 
-      if (editingIndex === -1) {
-        if (products.some(p => p.code === code)) {
-          alert('Mã sản phẩm đã tồn tại!');
-          return;
-        }
-        products.push({ code, name, price });
-      } else {
-        products[editingIndex].name = name;
-        products[editingIndex].price = price;
-      }
-
-      modal.hide();
-      renderProducts();
-    });
-
+    modal.hide();
     renderProducts();
-  </script>
+  });
+
+  renderProducts();
+</script>
+
 </body>
 </html>
