@@ -59,7 +59,7 @@
     <!-- <h2 class="mb-4">Quản lý sản phẩm</h2> -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <div class="flex-grow-1">
-    <input type="text" id="searchInput" class="form-control" placeholder="Tìm sản phẩm theo mã..." oninput="searchByCode()" />
+    <input type="text" id="searchInput" class="form-control" placeholder="Tìm sản phẩm theo mã..." oninput="searchProducts()" />
   </div>
 
   <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddForm()">
@@ -210,15 +210,19 @@
     currentPage = page;
     const keyword = searchInput.value.trim().toLowerCase();
     const filtered = keyword
-      ? products.filter(p => p.code.toLowerCase().includes(keyword))
+      ? products.filter(p => 
+        p.code.toLowerCase().includes(keyword) ||
+        p.name.toLowerCase().includes(keyword))
       : products;
     renderProducts(filtered);
   }
 
-  function searchByCode() {
+  function searchProducts() {
     currentPage = 1;
     const keyword = searchInput.value.trim().toLowerCase();
-    const filteredProducts = products.filter(p => p.code.toLowerCase().includes(keyword));
+    const filteredProducts = products.filter(p => 
+      p.code.toLowerCase().includes(keyword) ||
+      p.name.toLowerCase().includes(keyword));
     renderProducts(filteredProducts);
   }
 
