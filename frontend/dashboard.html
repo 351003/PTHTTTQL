@@ -62,6 +62,15 @@
       background-color: #495057;
       color: #fff;
     }
+    .card {
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  }
   </style>
 </head>
 <body>
@@ -101,7 +110,7 @@
         <i class="bi bi-person-circle fs-4 me-2"></i> <span id="username">Admin</span>
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+        <li><a class="dropdown-item" href="login.html" onclick="logout()">Đăng xuất</a></li>
       </ul>
     </li>
   </ul>
@@ -109,7 +118,7 @@
   <main class="main-content" style="margin-left: 220px; padding: 20px;">
     <!-- <h1 class="mb-4">Dashboard</h1> -->
 
-    <div class="grid">
+    <!-- <div class="grid">
       <div class="card text-center">
         <div class="card-title">Tổng doanh thu</div>
         <div id="totalRevenue" class="fs-4 text-success">0 VND</div>
@@ -123,7 +132,45 @@
     <div class="card">
       <div class="card-title">Doanh thu theo ngày</div>
       <canvas id="revenueChart" height="100"></canvas>
+    </div> -->
+    <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-success shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="bi bi-cash-stack fs-2 mb-2"></i>
+          <h5 class="card-title">Tổng doanh thu</h5>
+          <div id="totalRevenue" class="fs-4 fw-bold">0 VND</div>
+        </div>
+      </div>
     </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-primary shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="bi bi-receipt fs-2 mb-2"></i>
+          <h5 class="card-title">Tổng đơn hàng</h5>
+          <div id="totalOrders" class="fs-4 fw-bold">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="bi bi-box-seam fs-2 mb-2"></i>
+          <h5 class="card-title">Sản phẩm đã bán</h5>
+          <div id="productsSold" class="fs-4 fw-bold">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="bi bi-people fs-2 mb-2"></i>
+          <h5 class="card-title">Tổng khách hàng</h5>
+          <div id="totalCustomers" class="fs-4 fw-bold">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
   </main>
 
   <script>
