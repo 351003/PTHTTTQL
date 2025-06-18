@@ -66,7 +66,21 @@
     <div id="totalRevenue" class="alert alert-info fs-4" role="alert" style="display:none;">
       <!-- Tổng doanh thu sẽ hiển thị ở đây -->
     </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Ngày</th>
+          <th>Doanh thu (VND)</th>
+        </tr>
+      </thead>
+      <tbody id="revenueStatsBody">
+        <!-- Dữ liệu sẽ được load ở đây -->
+      </tbody>
+    </table>
 
+    <!-- <div id="chart-container">
+      <canvas id="revenueChart"></canvas>
+    </div> -->
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -80,6 +94,24 @@
 
     const form = document.getElementById('filterForm');
     const totalRevenueDiv = document.getElementById('totalRevenue');
+    const tbody = document.getElementById('revenueStatsBody');
+
+    function renderTable(data) {
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">Không có dữ liệu</td></tr>';
+        return;
+      }
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.date}</td>
+          <td>${item.revenue.toLocaleString('vi-VN')} VND</td>
+
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -94,7 +126,7 @@
       }
 
       const filtered = revenueData.filter(item => item.date >= start && item.date <= end);
-
+      renderTable(filtered);
       if (filtered.length === 0) {
         totalRevenueDiv.style.display = 'block';
         totalRevenueDiv.textContent = 'Không có dữ liệu doanh thu trong khoảng thời gian đã chọn.';
